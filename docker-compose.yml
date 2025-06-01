@@ -1,0 +1,48 @@
+version: '3'
+services:
+  hyperf-skeleton:
+    container_name: hyperf-todo-api
+    image: hyperf-skeleton
+    build:
+      context: .
+    volumes:
+      - ./:/opt/www
+    ports:
+      - 9501:9501
+    depends_on:
+      - mysql
+    environment:
+      - APP_ENV=dev
+      - SCAN_CACHEABLE=false
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=todo_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo_db
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  mysql-data:
+
+
+networks:
+  default:
+    name: hyperf-network
