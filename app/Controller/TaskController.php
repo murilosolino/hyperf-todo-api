@@ -2,66 +2,65 @@
 
 namespace App\Controller;
 
-use App\Model\Task;
-use Hyperf\HttpMessage\Exception\NotFoundHttpException;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
+use App\Service\TaskService;
 
 class TaskController
 {
 
-    public function index()
+    #[Inject]
+    protected TaskService $taskService;
+
+    public function index(ResponseInterface $response)
     {
-        $task = Task::all();
-
-        if (!$task) {
-            throw new NotFoundHttpException('Nenhum registro encontrado');
-        }
-
-        return $task;
+        $tasks = $this->taskService->getAllTasks();
+        return $response->json([
+            'data' => $tasks,
+            'total' => count($tasks),
+        ]);
     }
 
-    public function show(int $id)
+    public function show(ResponseInterface $response, int $id)
     {
-        $task = Task::find($id);
-
-        if (!$task) {
-            throw new NotFoundHttpException('Task nao encontrada para o id: ' . $id);
-        }
-
-        return $task;
+        return $response->json(['data' => $this->taskService->findTaskById($id)]);
     }
 
     public function store(RequestInterface $request, ResponseInterface $response)
     {
+        $data = [
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'is_done' => $request->input('is_done', false)
+        ];
 
-        $title = $request->input('title');
-        $description = $request->input('description');
-        $is_done = $request->input('is_done');
-
-        $arr = ['title' => $title, 'description' => $description, 'is_done' => $is_done];
-        Task::create($arr);
-        return $response->json(['message' => "Tarefa Criada!"])->withStatus(201);
+        $createdTask = $this->taskService->createTask($data);
+        return $response->json([
+            'message' => "Tarefa Criada!",
+            'data' => $createdTask,
+        ])->withStatus(201);
     }
 
     public function update(RequestInterface $request, ResponseInterface $response, int $id)
     {
 
-        $task = $this->show($id);
+        $data = [
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'is_done' => $request->input('is_done')
+        ];
 
-        $title = $request->input('title', $task->title);
-        $description = $request->input('description', $task->description);
-        $is_done = $request->input('is_done', $task->is_done);
-
-        $arr = ['title' => $title, 'description' => $description, 'is_done' => $is_done];
-        $task->update($arr);
-        return $response->json(['message' => "Atualização Concluída"])->withStatus(200);
+        $updatedTask = $this->taskService->updateTask($id, $data);
+        return $response->json([
+            'message' => "Atualização Concluída",
+            'data' => $updatedTask,
+        ])->withStatus(200);
     }
 
     public function destroy(ResponseInterface $response, int $id)
     {
-        $task = $this->show($id);
-        $task->delete();
-        return $response->json(['message' => "Atualização Concluída"])->withStatus(204);
+        $this->taskService->deleteTask($id);
+        return $response->json(['message' => "Registro Deletado"])->withStatus(204);
     }
 }
