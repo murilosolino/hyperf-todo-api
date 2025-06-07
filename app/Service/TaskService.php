@@ -53,7 +53,7 @@ class TaskService
         return $task->delete();
     }
 
-    public function findByIsDoneTrue(int $status)
+    public function findByIsDone(int $status)
     {
         if ($status == 1) {
             $tasks = Task::where('is_done', '=', 1)->get();

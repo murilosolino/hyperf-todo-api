@@ -117,7 +117,7 @@ class TaskController
             throw new \Hyperf\HttpMessage\Exception\BadRequestHttpException('O status deve ser 0 ou 1');
         }
 
-        $tasks = $this->taskService->findByIsDoneTrue($status);
+        $tasks = $this->taskService->findByIsDone($status);
         return $response->json([
             'data' => $tasks,
             'count' => count($tasks)
