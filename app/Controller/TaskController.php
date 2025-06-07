@@ -6,6 +6,7 @@ use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use App\Service\TaskService;
+use Hyperf\HttpServer\Exception\Handler\HttpExceptionHandler;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Hyperf\Validation\ValidationException;
 
@@ -106,5 +107,20 @@ class TaskController
     {
         $this->taskService->deleteTask($id);
         return $response->json(['message' => "Registro Deletado"])->withStatus(204);
+    }
+
+    public function getAllIsDone(ResponseInterface $response, int $status)
+    {
+
+        if ($status !== 0 && $status !== 1) {
+            $response->json(['error message:' => 'ERROR: O status deve ser 0 ou 1'])->withStatus(400);
+            throw new \Hyperf\HttpMessage\Exception\BadRequestHttpException('O status deve ser 0 ou 1');
+        }
+
+        $tasks = $this->taskService->findByIsDoneTrue($status);
+        return $response->json([
+            'data' => $tasks,
+            'count' => count($tasks)
+        ]);
     }
 }

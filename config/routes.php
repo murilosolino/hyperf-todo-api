@@ -15,6 +15,7 @@ use Hyperf\HttpServer\Router\Router;
 Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@index');
 
 Router::get('/tasks', 'App\Controller\TaskController@index');
+Router::get('/tasks/isDone/{status}', 'App\Controller\TaskController@getAllIsDone');
 Router::get('/tasks/{id}', 'App\Controller\TaskController@show');
 Router::post('/tasks', 'App\Controller\TaskController@store');
 Router::put('/tasks/{id}', 'App\Controller\TaskController@update');

@@ -52,4 +52,15 @@ class TaskService
         $task = $this->findTaskById($id);
         return $task->delete();
     }
+
+    public function findByIsDoneTrue(int $status)
+    {
+        if ($status == 1) {
+            $tasks = Task::where('is_done', '=', 1)->get();
+        } elseif ($status == 0) {
+            $tasks = Task::where('is_done', '=', 0)->get();
+        }
+
+        return $tasks;
+    }
 }
