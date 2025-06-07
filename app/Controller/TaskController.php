@@ -19,9 +19,36 @@ class TaskController
     #[Inject]
     protected ValidatorFactoryInterface $validatorFactory;
 
-    public function index(ResponseInterface $response)
+    public function index(RequestInterface $request, ResponseInterface $response)
     {
-        $tasks = $this->taskService->getAllTasks();
+
+        $validator = $this->validatorFactory->make(
+            $request->all(),
+            [
+                'title' => 'filled|string|min:1',
+                'is_done' => 'integer|between:0,1'
+            ],
+            [
+                'string' => ':attribute deve ser do tipo string',
+                'integer' => ':attribute deve ser do tipo integer',
+                'between' => ':attribute deve ser um integer e não deve ser diferente de 0 ou 1',
+                'min:' => ':attribute deve conter ao menos um caracter',
+                'filled' => ':attribute não pode ser vazio'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+
+
+        $parms = [
+            'title' => $request->input('title'),
+            'is_done' => $request->input('is_done')
+        ];
+
+        $tasks = $this->taskService->filter($parms);
         return $response->json([
             'data' => $tasks,
             'total' => count($tasks),
@@ -106,42 +133,5 @@ class TaskController
     {
         $this->taskService->deleteTask($id);
         return $response->json(['message' => "Registro Deletado"])->withStatus(204);
-    }
-
-    public function getAllIsDone(ResponseInterface $response, int $status)
-    {
-
-        if ($status !== 0 && $status !== 1) {
-            $response->json(['error message:' => 'ERROR: O status deve ser 0 ou 1'])->withStatus(400);
-            throw new \Hyperf\HttpMessage\Exception\BadRequestHttpException('O status deve ser 0 ou 1');
-        }
-
-        $tasks = $this->taskService->findByIsDone($status);
-        return $response->json([
-            'data' => $tasks,
-            'count' => count($tasks)
-        ]);
-    }
-
-    public function showByTitle(RequestInterface $request, ResponseInterface $response)
-    {
-        $validator = $this->validatorFactory->make(
-            $request->all(),
-            [
-                'title' => 'required|string'
-            ],
-            [
-                'title.required' => 'Defina um :attribute para a buscar a tarefa',
-                'string' => ':attribute deve ser do tipo string'
-            ]
-        );
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $title = $request->input('title');
-        $tasks = $this->taskService->findByTitle($title);
-        return $response->json(['data' => $tasks])->withStatus(200);
     }
 }

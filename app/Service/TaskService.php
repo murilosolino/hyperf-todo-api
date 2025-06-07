@@ -7,16 +7,6 @@ use Hyperf\HttpMessage\Exception\NotFoundHttpException;
 
 class TaskService
 {
-    public function getAllTasks()
-    {
-        $task = Task::all();
-
-        if (!$task) {
-            throw new NotFoundHttpException('Nenhum registro encontrado');
-        }
-
-        return $task;
-    }
 
     public function findTaskById(int $id): Task
     {
@@ -53,15 +43,25 @@ class TaskService
         return $task->delete();
     }
 
-    public function findByIsDone(int $status)
+    public function filter(array $params)
     {
-        $tasks = Task::where('is_done', '=', $status)->get();
-        return $tasks;
-    }
+        $title = $params['title'] ?? null;
+        $is_done = $params['is_done'] ?? null;
 
-    public function findByTitle(string $title)
-    {
-        $task = Task::where('title', 'like', "%{$title}%")->get();
-        return $task;
+        $query = Task::query();
+
+        if ($title === null && $is_done === null) {
+            return Task::all();
+        }
+
+        if (isset($title)) {
+            $query->where('title', 'like', "%{$title}%");
+        }
+
+        if (isset($is_done)) {
+            $query->where('is_done', '=', $is_done);
+        }
+
+        return $query->get();
     }
 }
