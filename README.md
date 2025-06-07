@@ -1,63 +1,137 @@
-# Introduction
+# 📝 Hyperf TODO API
 
-This is a skeleton application using the Hyperf framework. This application is meant to be used as a starting place for those looking to get their feet wet with Hyperf Framework.
+## 🚀 Tecnologias
+ 
+- **Docker + Docker Compose** – ambiente containerizado  
+- **MySQL** – via container, usando migrations  
+- **PHP** 
+- **HYPERF**
+---
 
-# Requirements
+## 🧩 Funcionalidades da API
 
-Hyperf has some requirements for the system environment, it can only run under Linux and Mac environment, but due to the development of Docker virtualization technology, Docker for Windows can also be used as the running environment under Windows.
+| Método | Rota              | Descrição                    |
+|:------:|:-----------------:|:-----------------------------|
+| POST   | `/tasks`          | Criar uma nova tarefa        |
+| GET    | `/tasks`          | Listar todas as tarefas      |
+| GET    | `/tasks/{id}`     | Obter tarefa por ID          |
+| PUT    | `/tasks/{id}`     | Atualizar tarefa existente   |
+| DELETE | `/tasks/{id}`     | Excluir tarefa               |
 
-The various versions of Dockerfile have been prepared for you in the [hyperf/hyperf-docker](https://github.com/hyperf/hyperf-docker) project, or directly based on the already built [hyperf/hyperf](https://hub.docker.com/r/hyperf/hyperf) Image to run.
+- Retorno em JSON com status HTTP apropriado
+- Controle de erros com respostas padronizadas (404, 422, 500)
+- Disponibilização de filtros no endpoint tasks para buscar tarefas por **title** e **is_done**
 
-When you don't want to use Docker as the basis for your running environment, you need to make sure that your operating environment meets the following requirements:  
+---
 
- - PHP >= 8.1
- - Any of the following network engines
-   - Swoole PHP extension >= 5.0，with `swoole.use_shortname` set to `Off` in your `php.ini`
-   - Swow PHP extension >= 1.3
- - JSON PHP extension
- - Pcntl PHP extension
- - OpenSSL PHP extension （If you need to use the HTTPS）
- - PDO PHP extension （If you need to use the MySQL Client）
- - Redis PHP extension （If you need to use the Redis Client）
- - Protobuf PHP extension （If you need to use the gRPC Server or Client）
+## 🧰 Pré-requisitos
 
-# Installation using Composer
+- Docker e Docker Compose
+- (Opcional, para dev local sem Docker) PHP 8.1+ com extensões: Swoole, pdo_mysql, json, pcntl
 
-The easiest way to create a new Hyperf project is to use [Composer](https://getcomposer.org/). If you don't have it already installed, then please install as per [the documentation](https://getcomposer.org/download/).
+---
 
-To create your new Hyperf project:
+## ⚙️ Instalação e execução
 
-```bash
-composer create-project hyperf/hyperf-skeleton path/to/install
-```
+1. **Clone o repositório**
 
-If your development environment is based on Docker you can use the official Composer image to create a new Hyperf project:
+    ```bash
+    git clone https://github.com/murilosolino/hyperf-todo-api.git
+    cd hyperf-todo-api
+    ```
 
-```bash
-docker run --rm -it -v $(pwd):/app composer create-project --ignore-platform-reqs hyperf/hyperf-skeleton path/to/install
-```
+2. **Copie o arquivo de ambiente**
 
-# Getting started
+    ```bash
+    cp .env.example .env
+    ```
 
-Once installed, you can run the server immediately using the command below.
+3. **Suba os containers**
 
-```bash
-cd path/to/install
-php bin/hyperf.php start
-```
+    ```bash
+    docker-compose up -d
+    ```
 
-Or if in a Docker based environment you can use the `docker-compose.yml` provided by the template:
+4. **Execute as migrations**
 
-```bash
-cd path/to/install
-docker-compose up
-```
+    ```bash
+    docker-compose exec app php bin/hyperf.php migrate
+    ```
 
-This will start the cli-server on port `9501`, and bind it to all network interfaces. You can then visit the site at `http://localhost:9501/` which will bring up Hyperf default home page.
+5. **Acesse a API**
 
-## Hints
+    ```
+    http://localhost:9501
+    ```
 
-- A nice tip is to rename `hyperf-skeleton` of files like `composer.json` and `docker-compose.yml` to your actual project name.
-- Take a look at `config/routes.php` and `app/Controller/IndexController.php` to see an example of a HTTP entrypoint.
+---
 
-**Remember:** you can always replace the contents of this README.md file to something that fits your project description.
+## 📘 Exemplos com cURL
+
+- **Criar tarefa**
+
+    ```bash
+    curl -X POST http://localhost:9501/tasks \
+      -H "Content-Type: application/json" \
+      -d '{
+            "title":"Estudar Hyperf",
+            "description":"Criar um projeto para estudar Hyperf",
+            "is_done":0
+            }'
+    ```
+
+- **Listar tarefas**
+
+    ```bash
+    curl http://localhost:9501/tasks
+    ```
+
+    **Listar tarefas com filtros**
+
+    ```bash
+    curl http://localhost:9501/tasks?title=teste&is_done=0
+    ```
+
+- **Obter tarefa por ID**
+
+    ```bash
+    curl http://localhost:9501/tasks/1
+    ```
+
+- **Atualizar tarefa**
+
+    ```bash
+    curl -X PUT http://localhost:9501/tasks/1 \
+      -H "Content-Type: application/json" \
+      -d '{"title":"Revisar PR", "is_done":1}'
+    ```
+
+- **Excluir tarefa**
+
+    ```bash
+    curl -X DELETE http://localhost:9501/tasks/1
+    ```
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem‑vindas! Para colaborar:
+
+1. Faça um *fork* do repositório  
+2. Crie uma branch (`git checkout -b feature/minha-nova-funcionalidade`)  
+3. Adicione testes e documentação  
+4. Faça commit e envie um *pull request*
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença **MIT**. Veja o arquivo `LICENSE` para mais detalhes.
+
+---
+
+## 🧑‍💻 Sobre o autor
+
+@murilosolino — graduando em Ciência da Computação, desenvolvendo habilidades em APIs, microsserviços e back-end moderno.
+
