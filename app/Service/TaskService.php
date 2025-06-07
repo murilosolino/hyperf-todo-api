@@ -55,12 +55,13 @@ class TaskService
 
     public function findByIsDone(int $status)
     {
-        if ($status == 1) {
-            $tasks = Task::where('is_done', '=', 1)->get();
-        } elseif ($status == 0) {
-            $tasks = Task::where('is_done', '=', 0)->get();
-        }
-
+        $tasks = Task::where('is_done', '=', $status)->get();
         return $tasks;
+    }
+
+    public function findByTitle(string $title)
+    {
+        $task = Task::where('title', 'like', "%{$title}%")->get();
+        return $task;
     }
 }

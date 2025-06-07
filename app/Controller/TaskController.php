@@ -6,7 +6,6 @@ use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use App\Service\TaskService;
-use Hyperf\HttpServer\Exception\Handler\HttpExceptionHandler;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Hyperf\Validation\ValidationException;
 
@@ -122,5 +121,27 @@ class TaskController
             'data' => $tasks,
             'count' => count($tasks)
         ]);
+    }
+
+    public function showByTitle(RequestInterface $request, ResponseInterface $response)
+    {
+        $validator = $this->validatorFactory->make(
+            $request->all(),
+            [
+                'title' => 'required|string'
+            ],
+            [
+                'title.required' => 'Defina um :attribute para a buscar a tarefa',
+                'string' => ':attribute deve ser do tipo string'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $title = $request->input('title');
+        $tasks = $this->taskService->findByTitle($title);
+        return $response->json(['data' => $tasks])->withStatus(200);
     }
 }
